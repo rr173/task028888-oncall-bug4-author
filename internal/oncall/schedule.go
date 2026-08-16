@@ -28,6 +28,14 @@ func Build(req Request) (*Schedule, error) {
 	if end.Before(start) {
 		return nil, fmt.Errorf("end date %s is before start date %s", req.End, req.Start)
 	}
+	for date, active := range req.Holidays {
+		if !active {
+			continue
+		}
+		if _, err := time.Parse(DateLayout, date); err != nil {
+			return nil, fmt.Errorf("invalid holiday date %q: %w", date, err)
+		}
+	}
 
 	n := len(req.Roster)
 	if n > 0 && (req.StartIndex < 0 || req.StartIndex >= n) {
